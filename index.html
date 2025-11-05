@@ -1,1 +1,757 @@
-<!-- Root index.html, main page for navigation -->
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Phone </title>
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+
+  <style>
+      /* CSS Styling */
+
+      /* Custom properties for easy color changes */
+      :root {
+          --google-blue: #1a73e8;
+          --text-primary: #202124;
+          --text-secondary: #5f6368;
+          --background-light: #f8f9fa;
+      }
+
+      /* Global resets and font setup */
+      body {
+          margin: 0;
+          padding: 0;
+          /* Using 'Google Sans' substitute and a fallback */
+          font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+          color: var(--text-primary);
+          background-color: white;
+      }
+
+      /* --- Navigation Bar Styling --- */
+      .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 40px; /* Spacing from the sides */
+      }
+
+      .navbar-left, .navbar-right {
+          display: flex;
+          align-items: center;
+      }
+
+      .logo {
+          /* Simulating the 'G' logo space */
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--google-blue);
+          text-decoration: none;
+          margin-right: 20px;
+      }
+      /* Using an image placeholder class for better visual context */
+      .logo-placeholder {
+          width: 24px;
+          height: 24px;
+          background-color: #4285F4; /* Blue G color */
+          border-radius: 50%;
+          display: inline-block;
+          margin-right: 8px;
+      }
+
+
+      .nav-links a {
+          text-decoration: none;
+          color: var(--text-secondary);
+          font-size: 14px;
+          font-weight: 500;
+          margin-right: 20px;
+          padding: 8px 0;
+          transition: color 0.2s;
+      }
+
+      .nav-links a:hover {
+          color: var(--text-primary);
+      }
+
+      .material-symbols-outlined {
+          /* Standard Google icon styling */
+          font-variation-settings:
+              'FILL' 0,
+              'wght' 400,
+              'GRAD' 0,
+              'opsz' 24;
+          font-size: 24px;
+          color: var(--text-secondary);
+          cursor: pointer;
+          margin-left: 20px;
+          transition: color 0.2s;
+      }
+
+      .material-symbols-outlined:hover {
+          color: var(--text-primary);
+      }
+
+      .avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: var(--text-secondary); /* Grey background */
+          color: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: 500;
+          font-size: 16px;
+          margin-left: 20px;
+          cursor: pointer;
+      }
+
+      /* --- Hero Section Styling --- */
+      .hero-section {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          /* Adjust height to push the button down, mimicking the original image */
+          min-height: calc(100vh - 56px); 
+          background-color: var(--background-light); /* Light blue-grey background */
+          padding: 50px 20px;
+      }
+
+      .hero-section h1 {
+          font-size: 80px; 
+          font-weight: 700;
+          line-height: 1.1;
+          margin-bottom: 24px;
+          max-width: 800px;
+      }
+
+      .hero-section p {
+          font-size: 18px;
+          font-weight: 400;
+          color: var(--text-secondary);
+          margin-bottom: 40px;
+      }
+
+      .cta-button {
+          background-color: var(--google-blue);
+          color: white;
+          font-size: 16px;
+          font-weight: 500;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          text-decoration: none;
+          transition: background-color 0.3s ease;
+      }
+
+      .cta-button:hover {
+          background-color: #1669d6; /* Darker blue on hover */
+      }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+      <div class="navbar-left">
+          <a href="#" class="logo">
+              <span style="color: #4285F4;">G</span><span style="color: #EA4335;">o</span><span style="color: #FBBC05;">o</span><span style="color: #4285F4;">g</span><span style="color: #34A853;">l</span><span style="color: #EA4335;">e</span>
+          </a>
+          <nav class="nav-links">
+            <a href="/electronics" class="btn primary">Electronics</a>
+            <a href="/phones" class="btn primary">Phones</a>
+            <a href="/computers" class="btn primary">Computers</a>
+            <a href="/earphones" class="btn primary">Earphones</a>
+            <a href="/payment" class="btn primary">payment</a>
+
+          </nav>
+      </div>
+      <div class="navbar-right">
+          <span class="material-symbols-outlined search-icon" style="margin-right: 18px;">search</span>
+          <button class="cta-button" style="margin-right: 12px;" id="loginBtn">Login</button>
+
+          <!-- Login Popup Modal -->
+          <div id="loginModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:1000; background:rgba(0,0,0,0.32); 
+                justify-content:center; align-items:center;">
+              <div style="background:#fff; padding:32px 28px; border-radius:12px; box-shadow:0 2px 20px 0 rgba(0,0,0,0.18); min-width:350px; position:relative;">
+                  <button id="closeLoginModal" style="position:absolute; top:8px; right:10px; background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+                  <div style="text-align:center; margin-bottom: 8px;">
+                    <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Logo" style="height:38px; margin-bottom: 8px;">
+                  </div>
+                  <h2 style="margin-bottom: 18px; color: var(--google-blue); font-size: 22px; font-weight:600; text-align:center;">Sign in to your Account</h2>
+                  <form id="loginForm" autocomplete="off">
+                      <div style="margin-bottom: 14px;">
+                          <label for="loginEmail" style="font-size:15px; color:#666;">Email</label>
+                          <input type="email" id="loginEmail" name="loginEmail" required style="width:100%; padding:9px 10px; border:1px solid #ddd; border-radius:4px; font-size:16px; margin-top:4px;">
+                      </div>
+                      <div style="margin-bottom: 18px;">
+                          <label for="loginPassword" style="font-size:15px; color:#666;">Password</label>
+                          <input type="password" id="loginPassword" name="loginPassword" required style="width:100%; padding:9px 10px; border:1px solid #ddd; border-radius:4px; font-size:16px; margin-top:4px;">
+                      </div>
+                      <div id="loginMsg" style="min-height:18px; font-size:13px; margin-bottom:12px; text-align:center;"></div>
+                      <button type="submit" class="cta-button" style="width:100%; margin-bottom:10px;">Login</button>
+                  </form>
+                  <div style="font-size:13px; text-align:center; color:#555;">
+                      Don't have an account? <a href="#" style="color:var(--google-blue); text-decoration:underline;">Sign Up</a>
+                  </div>
+              </div>
+          </div>
+          <script>
+            // Set the correct API base, and fix syntax error ('#' to '//')
+            const API_BASE = "http://backendforrds-165551629.eu-west-2.elb.amazonaws.com/api"; // your backend code
+
+            async function login(event) {
+              event.preventDefault();
+
+              const email = document.getElementById("loginEmail").value.trim();
+              const password = document.getElementById("loginPassword").value;
+              const loginMsg = document.getElementById("loginMsg");
+              const loginBtn = document.getElementById("loginBtn");
+
+              if (!email || !password) {
+                loginMsg.style.color = "red";
+                loginMsg.innerText = "Please enter both email and password.";
+                return;
+              }
+
+              // Disable button to prevent double submit
+              if (loginBtn) loginBtn.disabled = true;
+
+              loginMsg.style.color = "#333";
+              loginMsg.innerText = "Logging in...";
+
+              try {
+                const res = await fetch(`${API_BASE}/login`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email, password })
+                });
+
+                let data = null;
+                try {
+                  data = await res.json();
+                } catch (e) {
+                  data = { error: "Invalid server response." };
+                }
+
+                if (res.ok && data && data.email) {
+                  loginMsg.style.color = "green";
+                  loginMsg.innerText = "✅ Login successful!";
+                  
+                  // Prepare avatar URL (fallback to default if not provided)
+                  let avatarUrl = data.avatar || ("https://ui-avatars.com/api/?name=" + encodeURIComponent((data.name ? data.name : data.email[0]).toUpperCase()));
+                  
+                  // Remove previous user-section if any
+                  const prevSection = document.getElementById("loggedInUserSection");
+                  if (prevSection) prevSection.remove();
+
+                  // Create a user details section
+                  const userSection = document.createElement("div");
+                  userSection.id = "loggedInUserSection";
+                  userSection.style.display = "flex";
+                  userSection.style.alignItems = "center";
+                  userSection.style.justifyContent = "center";
+                  userSection.style.marginTop = "10px";
+                  userSection.style.gap = "10px";
+
+                  // Avatar
+                  const avatarImg = document.createElement("img");
+                  avatarImg.src = avatarUrl;
+                  avatarImg.alt = "Avatar";
+                  avatarImg.style.width = "42px";
+                  avatarImg.style.height = "42px";
+                  avatarImg.style.borderRadius = "50%";
+                  avatarImg.style.border = "1px solid #eee";
+                  userSection.appendChild(avatarImg);
+
+                  // Username and email
+                  const userInfo = document.createElement("div");
+                  userInfo.innerHTML = `<strong>${data.name ? data.name : data.email}</strong><br><span style="font-size:12px;color:#888;">${data.email}</span>`;
+                  userSection.appendChild(userInfo);
+
+                  // Insert user section below loginMsg
+                  const parent = loginMsg.parentElement;
+                  parent.appendChild(userSection);
+
+                  localStorage.setItem("userEmail", data.email);
+
+                  // Change button text and disable
+                  if (loginBtn) {
+                    loginBtn.innerText = "Logged In";
+                    loginBtn.disabled = true;
+                  }
+
+                  // Close modal after short delay
+                  setTimeout(() => {
+                    document.getElementById('loginModal').style.display = "none";
+                    loginMsg.innerText = "";
+                  }, 1200);
+
+                } else {
+                  loginMsg.style.color = "red";
+                  loginMsg.innerText = data && data.error ? data.error : "Login failed. Please try again.";
+                  if (loginBtn) loginBtn.disabled = false;
+                }
+              } catch (err) {
+                loginMsg.style.color = "red";
+                loginMsg.innerText = "Network error. Please try again.";
+                if (loginBtn) loginBtn.disabled = false;
+              }
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+              const loginBtn = document.getElementById('loginBtn');
+              const loginModal = document.getElementById('loginModal');
+              const closeLoginModal = document.getElementById('closeLoginModal');
+              const loginForm = document.getElementById('loginForm');
+
+              // Show modal
+              if (loginBtn) {
+                loginBtn.addEventListener('click', () => {
+                  loginModal.style.display = 'flex';
+                });
+              }
+              // Hide modal with close button
+              if (closeLoginModal) {
+                closeLoginModal.addEventListener('click', () => {
+                  loginModal.style.display = 'none';
+                  // Reset button and message
+                  const loginMsg = document.getElementById("loginMsg");
+                  if (loginMsg) loginMsg.innerText = "";
+                  if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = "Login";
+                  }
+                  // Remove user section if present
+                  const prevSection = document.getElementById("loggedInUserSection");
+                  if (prevSection) prevSection.remove();
+                });
+              }
+              // Hide modal when clicking outside
+              window.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                  loginModal.style.display = 'none';
+                  const loginMsg = document.getElementById("loginMsg");
+                  if (loginMsg) loginMsg.innerText = "";
+                  if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = "Login";
+                  }
+                  const prevSection = document.getElementById("loggedInUserSection");
+                  if (prevSection) prevSection.remove();
+                }
+              });
+              // Handle form submission
+              if (loginForm) {
+                loginForm.addEventListener("submit", login);
+              }
+
+              // If already logged in (localStorage), show as logged in
+              const userEmail = localStorage.getItem("userEmail");
+              if (userEmail && loginBtn) {
+                loginBtn.innerText = "Logged In";
+                loginBtn.disabled = true;
+              }
+            });
+          </script>
+          <!-- Sign Up Modal Trigger Button -->
+          <button id="signupBtn" class="cta-button" style="background-color: white; color: var(--google-blue); border: 1px solid var(--google-blue);">Sign Up</button>
+
+          <!-- Sign Up Modal -->
+          <div id="signupModal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100vw; height:100vh; background:rgba(32,33,36,0.37); justify-content:center; align-items:center;">
+            <div style="background:white; border-radius:10px; box-shadow:0 0 24px rgba(60,64,67,0.25); padding:32px 28px; min-width:320px; max-width:94vw; position:relative;">
+              <span id="closeSignupModal" style="position:absolute; top:14px; right:18px; cursor:pointer; font-size:24px;">&times;</span>
+              <div style="text-align:center; margin-bottom:16px;">
+                <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Store Logo" style="width:180px; height:auto; margin-bottom:20px;" />
+                <h2 style="margin-bottom:0; color:var(--google-blue); font-weight:500;">Create your account</h2>
+              </div>
+              <form id="signupForm" autocomplete="off">
+                <div style="margin-bottom:16px;">
+                  <input name="username" id="signupUsername" type="text" placeholder="Username" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" />
+                </div>
+                <div style="margin-bottom:16px;">
+                  <input name="email" id="signupEmail" type="email" placeholder="Email" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" autocomplete="username" />
+                </div>
+                <div style="margin-bottom:16px;">
+                  <input name="password" id="signupPassword" type="password" placeholder="Password" required minlength="6" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" autocomplete="new-password" />
+                </div>
+                <div id="signupMsg" style="height:18px; color: #ea4335; margin-bottom:8px; font-size:15px;"></div>
+                <button type="submit" class="cta-button" style="width:100%; margin:0;">Sign Up</button>
+                <div id="loginBtnContainer" style="margin-top:12px;"></div>
+              </form>
+              <p style="margin-top:18px; text-align:center; font-size:15px;">
+                Already have an account? <a href="#" style="color:var(--google-blue)" id="openLoginFromSignup">Login</a>
+              </p>
+            </div>
+          </div>
+          <script>
+          // Ensure this API_BASE is not redeclared if already present (avoid lint error)
+          window.API_BASE = window.API_BASE || "http://backendforrds-165551629.eu-west-2.elb.amazonaws.com/api";
+
+          async function signup() {
+            const username = document.getElementById("signupUsername").value.trim();
+            const email = document.getElementById("signupEmail").value.trim();
+            const password = document.getElementById("signupPassword").value;
+
+            const signupMsg = document.getElementById("signupMsg");
+            const loginBtnContainer = document.getElementById("loginBtnContainer");
+
+            if (!username || !email || !password) {
+              signupMsg.style.color = "red";
+              signupMsg.innerText = "Please fill all fields.";
+              loginBtnContainer.innerHTML = "";
+              return;
+            }
+
+            // Simple email validation (optional improvement)
+            const emailRegex = /^\S+@\S+\.\S+$/;
+            if (!emailRegex.test(email)) {
+              signupMsg.style.color = "red";
+              signupMsg.innerText = "Please enter a valid email.";
+              loginBtnContainer.innerHTML = "";
+              return;
+            }
+
+            let res;
+            try {
+              res = await fetch(`${window.API_BASE}/save`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+              });
+            } catch (err) {
+              signupMsg.style.color = "red";
+              signupMsg.innerText = "Network error. Try again.";
+              loginBtnContainer.innerHTML = "";
+              return;
+            }
+
+            let data = {};
+            try {
+              data = await res.json();
+            } catch (err) {
+              data = { error: "Server error. Try again." };
+            }
+
+            if (res.status === 200) {
+              signupMsg.style.color = "green";
+              signupMsg.innerText = "✅ User registered successfully!";
+              loginBtnContainer.innerHTML = `
+                <a href="#" class="login-btn-after-signup" id="loginAfterSignupBtn" style="display:inline-block;margin-top:8px;color:var(--google-blue);font-weight:500;">Log In</a>
+              `;
+              // Handle "Log In" click to close signup, open login
+              document.getElementById("loginAfterSignupBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+                document.getElementById("signupModal").style.display = "none";
+                const loginModal = document.getElementById("loginModal");
+                if (loginModal) {
+                  loginModal.style.display = 'flex';
+                  // Focus the first email input for user convenience
+                  const emailInput = loginModal.querySelector('input[type="email"]');
+                  if (emailInput) setTimeout(() => emailInput.focus(), 200);
+                } else {
+                  // fallback: reload
+                  window.location.href = "index.html";
+                }
+              });
+            } else {
+              signupMsg.style.color = "red";
+              signupMsg.innerText = (data && data.error) ? data.error : "Sign up failed, try again.";
+              loginBtnContainer.innerHTML = "";
+            }
+          }
+
+          // Modal events and show/hide handlers
+          document.addEventListener('DOMContentLoaded', function() {
+            const signupBtn = document.getElementById('signupBtn');
+            const signupModal = document.getElementById('signupModal');
+            const closeSignupModal = document.getElementById('closeSignupModal');
+            const signupForm = document.getElementById('signupForm');
+            const signupMsg = document.getElementById('signupMsg');
+            const openLoginLink = document.getElementById('openLoginFromSignup');
+            const loginBtnContainer = document.getElementById('loginBtnContainer');
+
+            // Show modal
+            if (signupBtn && signupModal) {
+              signupBtn.addEventListener('click', () => {
+                signupModal.style.display = 'flex';
+                if (signupMsg) signupMsg.innerText = '';
+                if (signupForm) signupForm.reset();
+                if (loginBtnContainer) loginBtnContainer.innerHTML = '';
+                // Focus username for UX
+                setTimeout(() => {
+                  const user = document.getElementById("signupUsername");
+                  if (user) user.focus();
+                }, 200);
+              });
+            }
+            // Hide modal
+            if (closeSignupModal && signupModal) {
+              closeSignupModal.addEventListener('click', () => {
+                signupModal.style.display = 'none';
+              });
+            }
+            // Hide modal when clicking outside modal content
+            if (signupModal) {
+              signupModal.addEventListener('click', function(e) {
+                if (e.target === signupModal) {
+                  signupModal.style.display = 'none';
+                }
+              });
+            }
+
+            // Submit handler to prevent reload and use JS function
+            if (signupForm) {
+              signupForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                signup();
+              });
+            }
+
+            // "Already have an account? Login" link logic
+            if (openLoginLink && signupModal) {
+              openLoginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                signupModal.style.display = 'none';
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) {
+                  loginModal.style.display = 'flex';
+                  // Focus login email
+                  const emailInput = loginModal.querySelector('input[type="email"]');
+                  if (emailInput) setTimeout(() => emailInput.focus(), 200);
+                }
+              });
+            }
+          });
+          </script>
+  </header>
+
+  <main class="hero-section">
+      <h1>Ask more of your phone.</h1>
+      <p>Google Pixel 10 series is here. Say hello to your new phone.</p>
+      <button id="cta-button" class="cta-button">Browse phones</button>
+
+  <div style="margin-top: 40px; display: flex; justify-content: center;">
+      <video src="https://storage.googleapis.com/mannequin/blobs/4653b46c-99df-4418-af50-b903cdd558c0.mp4" autoplay="" muted="" playsinline="" loop="" style="max-width: 80%; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.13);">
+          Sorry, your browser doesn't support embedded videos.
+      </video>
+  </div>
+
+  <div style="display: flex; justify-content: center; gap: 32px; margin-top: 52px; flex-wrap: wrap;">
+      <a href="electronics/index.html" style="display: flex; flex-direction: column; align-items: center; text-decoration: none;">
+          <img src="https://images.squarespace-cdn.com/content/v1/5ae8bd2f89c1723a6f6f557b/1565794679412-QOSVO1NO2JF104SBAU4R/AdobeStock_237119664.jpeg" alt="Electronics" style="width: 130px; height: 130px; object-fit: contain; background: #f3f6fb; border-radius: 16px; box-shadow: 0 3px 16px rgba(66,133,244,0.06); margin-bottom: 12px;">
+          <span style="font-weight: 500; color: #1a73e8; margin-top: 6px;">Electronics</span>
+      </a>
+      <a href="phones/index.html" style="display: flex; flex-direction: column; align-items: center; text-decoration: none;">
+          <img src="https://m-cdn.phonearena.com/images/article/64576-wide-two_1200/The-Best-Phones-to-buy-in-2024---our-top-10-list.jpg" alt="Phones" style="width: 130px; height: 130px; object-fit: contain; background: #f3f6fb; border-radius: 16px; box-shadow: 0 3px 16px rgba(234,67,53,0.06); margin-bottom: 12px;">
+          <span style="font-weight: 500; color: #ea4335; margin-top: 6px;">Phones</span>
+      </a>
+      <a href="computers/index.html" style="display: flex; flex-direction: column; align-items: center; text-decoration: none;">
+          <img src="https://mecer.co.za/wp-content/uploads/2022/10/1140X810-1.jpg" alt="Computers" style="width: 130px; height: 130px; object-fit: contain; background: #f3f6fb; border-radius: 16px; box-shadow: 0 3px 16px rgba(251,188,5,0.06); margin-bottom: 12px;">
+          <span style="font-weight: 500; color: #fbbc05; margin-top: 6px;">Computers</span>
+      </a>
+      <a href="earphones/index.html" style="display: flex; flex-direction: column; align-items: center; text-decoration: none;">
+          <img src="https://techstory.in/wp-content/uploads/2020/02/01LW4049122-HeroSquare-f670a23de42e4206b42e87a61fe486fe.jpg" alt="Earphones" style="width: 130px; height: 130px; object-fit: contain; background: #f3f6fb; border-radius: 16px; box-shadow: 0 3px 16px rgba(52,168,83,0.06); margin-bottom: 12px;">
+          <span style="font-weight: 500; color: #34a853; margin-top: 6px;">Earphones</span>
+      </a>
+  </div>
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const ctaButton = document.getElementById('cta-button');
+
+          // Add a simple interaction to the button
+          ctaButton.addEventListener('click', () => {
+              alert('Redirecting to the phones catalog...');
+              // In a real app: window.location.href = '/phones';
+          });
+      });
+  </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <style>
+      /* CSS Styling */
+      :root {
+          --text-primary: #202124;
+          --text-secondary: #5f6368;
+          --border-color: #dadce0;
+          --google-blue: #1a73e8;
+      }
+
+      body {
+          margin: 0;
+          padding: 0;
+          font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+          color: var(--text-primary);
+          background-color: #fff;
+          line-height: 1.5;
+      }
+
+      /* --- Newsletter Section --- */
+      .newsletter-section {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 80px 20px 100px; /* More padding at bottom to match image */
+          text-align: center;
+          background-color: #f8f9fa; /* Light background as seen in image */
+      }
+
+      .newsletter-section .icon {
+          font-size: 48px; /* Large icon size */
+          color: var(--google-blue);
+          margin-bottom: 24px;
+          /* To make the icon look like a tag/label, we can adjust its appearance */
+          font-variation-settings:
+              'FILL' 1, /* Filled icon */
+              'wght' 400,
+              'GRAD' 0,
+              'opsz' 24;
+      }
+
+      .newsletter-section h2 {
+          font-size: 36px;
+          font-weight: 700;
+          line-height: 1.2;
+          margin-bottom: 32px;
+          max-width: 650px; /* Constrain text width */
+      }
+
+      .signup-button {
+          background-color: white;
+          color: var(--google-blue);
+          font-size: 14px;
+          font-weight: 500;
+          padding: 10px 24px;
+          border: 1px solid var(--border-color); /* Light border */
+          border-radius: 4px;
+          cursor: pointer;
+          text-decoration: none;
+          transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .signup-button:hover {
+          background-color: #f8f9fa; /* Slight background on hover */
+          border-color: var(--google-blue); /* Blue border on hover */
+      }
+
+      /* --- Disclaimers Section --- */
+      .disclaimers-section {
+          padding: 60px 40px;
+          background-color: #fff;
+          border-top: 1px solid var(--border-color);
+          font-size: 12px;
+          color: var(--text-secondary);
+          line-height: 1.8; /* More spacing for readability */
+      }
+
+      .disclaimers-section ul {
+          list-style: none; /* Remove default bullet points */
+          padding: 0;
+          margin: 0;
+          max-width: 960px; /* Constrain width for better readability */
+          margin-left: auto;
+          margin-right: auto;
+      }
+
+      .disclaimers-section li {
+          margin-bottom: 15px; /* Space between disclaimers */
+          position: relative;
+          padding-left: 15px; /* Space for custom bullet */
+      }
+
+      .disclaimers-section li::before {
+          content: '*'; /* Custom asterisk bullet */
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: var(--text-secondary);
+      }
+
+      /* --- Footer --- */
+      .footer {
+          padding: 40px 40px;
+          background-color: #fff;
+          border-top: 1px solid var(--border-color);
+      }
+
+      .footer .logo-google-store {
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--text-primary);
+      }
+
+      .footer .logo-google-store span {
+          /* Styling for the Google "G" */
+          font-size: 24px; /* Larger 'G' */
+          font-weight: 700;
+          margin-right: 8px;
+          /* Google 'G' colors - simplified here */
+          background: linear-gradient(to right, #4285F4, #EA4335, #FBBC05, #4285F4, #34A853, #EA4335);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      }
+      /* Simplified colorful "Google" text */
+      .footer .google-text {
+          color: #4285F4; /* Blue */
+      }
+      .footer .google-text span:nth-child(2) { color: #EA4335; } /* Red */
+      .footer .google-text span:nth-child(3) { color: #FBBC05; } /* Yellow */
+      .footer .google-text span:nth-child(4) { color: #4285F4; } /* Blue */
+      .footer .google-text span:nth-child(5) { color: #34A853; } /* Green */
+      .footer .google-text span:nth-child(6) { color: #EA4335; } /* Red */
+  </style>
+
+
+
+  <section class="newsletter-section">
+      <span class="material-symbols-outlined icon">label</span>
+      <h2>Get news, offers, cart reminders, personalised emails, and surveys from the Google Store.</h2>
+  </section>
+
+  <section class="disclaimers-section">
+      <ul>
+          <li>
+              All orders delivered free of charge will use the lowest-cost shipping option, unless stated otherwise.
+          </li>
+          <li>
+              Pixel devices generally receive Pixel Drops during the applicable Android update and support periods for the phone. For details, see 
+              <a href="https://g.co/pixel/updates" rel="noopener" target="_blank">g.co/pixel/updates</a>.
+              Availability of some Pixel Drops may vary by phone and device model.
+          </li>
+      </ul>
+  </section>
+
+  <footer class="footer" style="text-align:center; padding:24px 0;">
+      <div class="logo-google-store" style="justify-content:center;">
+          <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Store Logo" style="height:34px; vertical-align:middle; margin-right:8px;" />
+          
+      </div>
+      <div style="margin-top:12px; font-size:15px; color: #444;">
+          Developed by Abinash Kumar
+      </div>
+  </footer>
+
+  <script>
+      // Minimal JavaScript for interaction
+      document.addEventListener('DOMContentLoaded', () => {
+          const signupButton = document.getElementById('signup-button');
+
+          if (signupButton) {
+              signupButton.addEventListener('click', () => {
+                  alert('Thanks for your interest! This is a mock-up sign-up.');
+                  // In a real application, you'd trigger a modal or navigate to a sign-up form.
+              });
+          }
+      });
+  </script>
+
+
+</main></body></html>
