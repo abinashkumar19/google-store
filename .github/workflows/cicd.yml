@@ -34,7 +34,6 @@ jobs:
 
       # 3. Login to Amazon ECR
       - name: 📦 Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       # 4. Build, tag, and push Docker images
@@ -67,19 +66,20 @@ jobs:
           git commit -m "Update image tags in deployment files" || echo "No changes to commit"
           git push || echo "Push failed, probably due to permissions"
 
-      # 6. Configure kubectl for EKS
+      # 6. Configure kubectl for EKS with explicit context
       - name: ☸️ Connect to EKS cluster
         run: |
-          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --alias github-actions
+          kubectl config use-context github-actions
           kubectl get nodes
 
       # 7. Deploy to Kubernetes
       - name: 🚀 Deploy to Kubernetes
         run: |
-          # Apply ingress first with validation off
+          # Apply ingress first (disable validation to avoid webhook errors)
           kubectl apply -f ingress.yml --validate=false
 
-          # Apply all services and deployments
+          # Apply all services, deployments, and autoscalers
           for service in $SERVICES; do
             kubectl apply -f $service/service.yml
             kubectl apply -f $service/deployment.yml
@@ -92,4 +92,5 @@ jobs:
 
       # 8. Verify deployment
       - name: ✅ Verify resources
-        run: kubectl get pods,svc,ingress -n $K8S_NAMESPACE
+        run: |
+          kubectl get pods,svc,ingress -n $K8S_NAMESPACE
