@@ -112,3 +112,4 @@ jobs:
       - name: ✅ Verify resources
         run: |
           ssh -i ec2-key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "kubectl get pods,svc,ingress -n default"
+
