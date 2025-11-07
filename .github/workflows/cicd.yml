@@ -1,4 +1,4 @@
-name: CI/CD to EC2 + ECR + EKS
+name: CI/CD Full Stack Google Store
 
 on:
   push:
@@ -6,19 +6,21 @@ on:
       - main
 
 env:
-  AWS_REGION: ap-northeast-1        # 🗺️ Your AWS region
-  ECR_REPOSITORY: google-shopping   # 🐳 Your ECR repository name
+  AWS_REGION: ap-northeast-1
+  SERVICES: "frontend backend electronics phones computers earphones"
   EC2_USER: ec2-user
-  CLUSTER_NAME: abinash             # 🧩 EKS cluster name
+  CLUSTER_NAME: abinash
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout code
       - name: 🧾 Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Configure AWS credentials
       - name: ⚙️ Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -26,62 +28,60 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: 🔑 Decode EC2 PEM key
+      # 3. Login to ECR
+      - name: 📦 Login to Amazon ECR
         run: |
-          echo "${{ secrets.EC2_PEM_B64 }}" | base64 -d > ec2-key.pem
-          chmod 600 ec2-key.pem
-
-      - name: 🐳 Build and Push Docker image to ECR
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          IMAGE_TAG=$(git rev-parse --short HEAD)-$(date +%Y%m%d%H%M%S)
-          IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
-
-          echo "🧩 Using image URI: $IMAGE_URI"
-
-          # Create repo if not exists
-          aws ecr describe-repositories --repository-names $ECR_REPOSITORY >/dev/null 2>&1 || \
-            aws ecr create-repository --repository-name $ECR_REPOSITORY
-
-          # Build and push
-          docker build -t $IMAGE_URI .
           aws ecr get-login-password --region $AWS_REGION | \
-            docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-          docker push $IMAGE_URI
+            docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
 
-          echo "$IMAGE_URI" > image_uri.txt
-
-      - name: 🚀 Transfer files to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+      # 4. Build Docker images and update deployment YAMLs
+      - name: 🐳 Build, push, and update YAMLs
         run: |
-          scp -i ec2-key.pem -o StrictHostKeyChecking=no -r *.yml image_uri.txt $EC2_USER@$EC2_HOST:/home/$EC2_USER/
+          ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+          for service in $SERVICES; do
+            echo "🛠 Processing $service ..."
+            SERVICE_DIR="./$service"
+            IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION/google-store-$service:$(date +%Y%m%d%H%M%S)"
 
-      - name: 🧠 Deploy to EKS from EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+            # Create ECR repo if not exist
+            aws ecr describe-repositories --repository-names "google-store-$service" >/dev/null 2>&1 || \
+              aws ecr create-repository --repository-name "google-store-$service"
+
+            # Build & push image
+            docker build -t $IMAGE_URI $SERVICE_DIR
+            docker push $IMAGE_URI
+
+            # Update deployment.yml if exists
+            if [ -f "$SERVICE_DIR/deployment.yml" ]; then
+              sed -i "s|image:.*|image: $IMAGE_URI|g" "$SERVICE_DIR/deployment.yml"
+              echo "✅ Updated deployment.yml for $service"
+            fi
+          done
+
+      # 5. Configure kubectl
+      - name: ☸️ Configure kubectl for EKS
         run: |
-          ssh -i ec2-key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
-            set -e
-            cd /home/$EC2_USER
-            IMAGE_URI=$(cat image_uri.txt)
-            
-            echo "🔧 Setting up kubeconfig for EKS cluster..."
-            aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-            
-            echo "✅ Checking cluster access..."
-            kubectl get nodes || (echo "❌ Kubeconfig access failed" && exit 1)
+          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+          kubectl config current-context
 
-            echo "📝 Updating deployment image..."
-            for deploy_file in *-deployment.yml; do
-              sed -i "s|image:.*|image: ${IMAGE_URI}|g" "$deploy_file"
-            done
+      # 6. Deploy all YAMLs
+      - name: 🚀 Apply Kubernetes manifests recursively
+        run: |
+          for service in $SERVICES; do
+            SERVICE_DIR="./$service"
+            if [ -d "$SERVICE_DIR" ]; then
+              echo "Applying manifests for $service ..."
+              kubectl apply -f "$SERVICE_DIR" --validate=false
+            fi
+          done
 
-            echo "🚀 Applying Kubernetes manifests..."
-            kubectl apply -f . --validate=false
-
-            echo "🌐 Applying ingress..."
+          # Apply ingress separately if exists at root
+          if [ -f "./ingress.yml" ]; then
+            echo "Applying ingress.yml ..."
             kubectl apply -f ingress.yml --validate=false
+          fi
 
-            echo "🎉 Deployment complete!"
-          EOF
+      # 7. Verify deployment
+      - name: ✅ Verify all resources
+        run: |
+          kubectl get pods,svc,ingress -A
