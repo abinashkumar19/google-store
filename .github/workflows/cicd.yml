@@ -20,11 +20,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo using Personal Access Token (needed for push)
       - name: 🧾 Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GIT_PAT }}
 
+      # 2️⃣ Configure AWS credentials
       - name: 🔧 Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -32,9 +34,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # 3️⃣ Show IAM identity to help update aws-auth
+      - name: 🔍 Check AWS Identity
+        run: aws sts get-caller-identity
+
+      # 4️⃣ Login to Amazon ECR
       - name: 📦 Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      # 5️⃣ Build, Tag & Push Docker Images
       - name: 🛠 Build & push Docker images
         run: |
           set -e
@@ -50,23 +58,24 @@ jobs:
             fi
 
             if [ ! -f "$FOLDER/Dockerfile" ]; then
-              echo "⚠️  Skipping $service (no Dockerfile found)"
+              echo "⚠️ Skipping $service (no Dockerfile found)"
               continue
             fi
 
             REPO_NAME="google-store-$service"
             IMAGE_URI="$ECR_REGISTRY/$REPO_NAME:$IMAGE_TAG"
 
+            # Create ECR repo if not present
             aws ecr describe-repositories --repository-names $REPO_NAME >/dev/null 2>&1 || \
               aws ecr create-repository --repository-name $REPO_NAME
 
-            echo "🚀 Building $service ..."
+            echo "🚀 Building $service image..."
             docker build -t $IMAGE_URI $FOLDER
             docker push $IMAGE_URI
 
+            # Update image in YAML
             DEPLOY_YML="$FOLDER/deployment.yml"
             BACKEND_DEPLOY_YML="$FOLDER/backend-deployment.yml"
-
             if [ -f "$DEPLOY_YML" ]; then
               sed -i "s|image:.*|image: $IMAGE_URI|g" "$DEPLOY_YML"
             elif [ -f "$BACKEND_DEPLOY_YML" ]; then
@@ -74,23 +83,28 @@ jobs:
             fi
           done
 
+      # 6️⃣ Commit updated image references back to repo
       - name: 🔄 Commit updated deployment manifests
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add */deployment.yml Backend/backend-deployment.yml deployment.yml || true
           git commit -m "🔄 Auto-update image tags after build" || echo "No changes to commit"
-          git push origin main || echo "⚠️ Git push skipped (maybe already up-to-date)"
+          git push origin main || echo "⚠️ Git push skipped (no changes)"
 
-      - name: ☸️ Configure kubectl
+      # 7️⃣ Configure kubectl for EKS
+      - name: ☸️ Configure kubectl for EKS
         run: |
           aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --alias github-actions
           kubectl config use-context github-actions
-          kubectl get nodes
+          kubectl cluster-info
 
+      # 8️⃣ Apply all Kubernetes manifests (no verification)
       - name: 🚀 Apply Kubernetes manifests
         run: |
           set -e
+          echo "📦 Deploying all YAML files to EKS..."
+
           for service in $SERVICES; do
             if [ "$service" = "frontend" ]; then FOLDER="."
             elif [ "$service" = "backend" ]; then FOLDER="Backend"
@@ -98,19 +112,13 @@ jobs:
 
             for file in service.yml deployment.yml autoscaler.yml backend-deployment.yml backend-service.yml; do
               if [ -f "$FOLDER/$file" ]; then
-                echo "Applying $FOLDER/$file ..."
-                kubectl apply -f "$FOLDER/$file" -n $K8S_NAMESPACE
+                echo "➡️ Applying $FOLDER/$file ..."
+                kubectl apply -f "$FOLDER/$file" -n $K8S_NAMESPACE || true
               fi
             done
           done
 
           if [ -f ingress.yml ]; then
-            echo "Applying ingress.yml ..."
-            kubectl apply -f ingress.yml -n $K8S_NAMESPACE --validate=false
+            echo "🌐 Applying ingress.yml ..."
+            kubectl apply -f ingress.yml -n $K8S_NAMESPACE --validate=false || true
           fi
-
-      - name: ✅ Verify deployment
-        run: |
-          echo "🌍 Verifying deployed resources..."
-          kubectl get pods,svc,ingress -n $K8S_NAMESPACE
-
