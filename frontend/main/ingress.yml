@@ -4,8 +4,8 @@ metadata:
   name: shopping-site-ingress
   namespace: google
   annotations:
-    kubernetes.io/ingress.class: alb               # For AWS ALB (use nginx if you're using NGINX ingress)
-    alb.ingress.kubernetes.io/scheme: internet-facing
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing       # 👈 Public ALB
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 spec:
@@ -21,7 +21,7 @@ spec:
                 port:
                   number: 80
 
-          # 📱 Phones section
+          # 📱 Phones page
           - path: /phones
             pathType: Prefix
             backend:
@@ -30,7 +30,7 @@ spec:
                 port:
                   number: 80
 
-          # 💻 Computers section
+          # 💻 Computers page
           - path: /computers
             pathType: Prefix
             backend:
@@ -39,7 +39,7 @@ spec:
                 port:
                   number: 80
 
-          # 🎧 Earphones section
+          # 🎧 Earphones page
           - path: /earphones
             pathType: Prefix
             backend:
@@ -48,7 +48,7 @@ spec:
                 port:
                   number: 80
 
-          # 💳 Payment section
+          # 💳 Payment page
           - path: /payment
             pathType: Prefix
             backend:
