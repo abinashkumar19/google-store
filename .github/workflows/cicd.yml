@@ -115,4 +115,3 @@ jobs:
 
             cd "${SERVER_DIR}"
             echo "✅ Repository is up to date on the server."
-
