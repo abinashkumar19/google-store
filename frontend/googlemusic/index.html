@@ -1,1 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="music-player-container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="https://images.genius.com/59a92f849e980e83af49a57ca3167295.1000x1000x1.jpg" alt="Music Player Logo" class="logo-img" style="width:64px; height:64px;">
+            </div>
+            <div class="menu">
+                <div class="menu-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </div>
+                <div class="menu-item" id="discover-menu">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="menu-item" id="favorites-menu">
+                    <i class="fas fa-heart"></i>
+                    <span>Favorites</span>
+                </div>
+                <div class="menu-item" id="recent-menu">
+                    <i class="fas fa-clock"></i>
+                    <span>Recent</span>
+                </div>
+                <div class="menu-item" id="playlists-menu">
+                    <i class="fas fa-folder"></i>
+                    <span>Playlists</span>
+                </div>
+            </div>
+            
+            <div class="playlist-section">
+                <div class="section-header">
+                    <span>Your Playlists</span>
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="playlist-list">
+                    <div class="playlist-item active" id="playlist-my-mix">
+                        <i class="fas fa-headphones"></i>
+                        <span>My Mix</span>
+                    </div>
+                    <div class="playlist-item" id="playlist-chill-vibes">
+                        <i class="fas fa-sun"></i>
+                        <span>Chill Vibes</span>
+                    </div>
+                    <div class="playlist-item" id="playlist-workout">
+                        <i class="fas fa-running"></i>
+                        <span>Workout</span>
+                    </div>
+                    <div class="playlist-item" id="playlist-road-trip">
+                        <i class="fas fa-car"></i>
+                        <span>Road Trip</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="now-playing-header">
+                <h1>Now Playing</h1>
+            </div>
+            
+            <div class="player-container">
+                <div class="album-art">
+                    <img src="https://source.unsplash.com/random/400x400/?music,album" alt="Album Art" id="album-art" style="animation: none; transform: none;">
+                    <div class="vinyl-overlay"></div>
+                </div>
+                
+                <div class="song-info">
+                    <h2 id="song-title">Song Title</h2>
+                    <p id="artist-name">Artist Name</p>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                        <div class="time-info">
+                            <span id="current-time">0:00</span>
+                            <span id="duration">3:45</span>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="control-btn" id="shuffle-btn">
+                            <i class="fas fa-random"></i>
+                        </button>
+                        <button class="control-btn" id="prev-btn">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <button class="control-btn play-btn" id="play-btn">
+                            <i class="fas fa-play" id="play-icon"></i>
+                        </button>
+                        <button class="control-btn" id="next-btn">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                        <button class="control-btn" id="repeat-btn">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="volume-control" id="volume-control" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-volume-down" id="volume-down-icon" style="transition: color 0.3s;"></i>
+                        <input type="range" 
+                               id="volume-slider" 
+                               min="0" 
+                               max="1" 
+                               step="0.01" 
+                               value="0.7"
+                               style="transition: background 0.3s; width: 120px;"
+                        >
+                        <i class="fas fa-volume-up" id="volume-up-icon" style="transition: color 0.3s;"></i>
+                        <span id="volume-value" style="width: 32px; display: inline-block; text-align: right;">70%</span>
+                    </div>
+                    <script>
+                        // Animation & dynamic for volume slider
+                        const volumeSlider = document.getElementById('volume-slider');
+                        const volumeValue = document.getElementById('volume-value');
+                        const volumeDownIcon = document.getElementById('volume-down-icon');
+                        const volumeUpIcon = document.getElementById('volume-up-icon');
+                        // Color interpolate based on volume (low=blue, mid=gold/yellow, high=red)
+                        function getVolumeColor(val) {
+                            if (val < 0.33) return "#3498db";
+                            if (val < 0.66) return "#f1c40f";
+                            return "#e74c3c";
+                        }
+                        function updateVolumeUI(val) {
+                            const percent = Math.round(val * 100);
+                            volumeValue.textContent = percent + '%';
+                            const color = getVolumeColor(val);
+                            volumeSlider.style.background = `linear-gradient(90deg, ${color} ${percent}%, #eee ${percent}%)`;
+                            volumeDownIcon.style.color = val === 0 ? "#bbb" : color;
+                            volumeUpIcon.style.color = val > 0.7 ? color : "#888";
+                        }
+                        // Animate fill and icon color dynamically on input
+                        volumeSlider.addEventListener('input', (e) => {
+                            const val = parseFloat(volumeSlider.value);
+                            updateVolumeUI(val);
+                        });
+                        // For initial UI
+                        updateVolumeUI(parseFloat(volumeSlider.value));
+                    </script>
+                </div>
+            </div>
+            
+            <div class="queue-section">
+                <h3>Up Next</h3>
+                <div class="queue-list" id="queue-list">
+                    <!-- Queue items will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <audio id="audio-player"></audio>
+    
+    <!-- Modal for restriction message -->
+    <div id="block-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:10000;justify-content:center;align-items:center;">
+        <div style="background:#fff;padding:32px 40px;box-shadow:0 10px 32px rgba(70,30,23,0.15);border-radius:12px;text-align:center;max-width:90vw;">
+            <div style="font-size:2rem;color:#c0392b;margin-bottom:18px;"><i class="fas fa-exclamation-triangle"></i></div>
+            <div style="font-size:1.25rem;color:#222;font-weight:bold;margin-bottom:14px;">
+                Warning!<br>
+                Admin did not allow.<br>
+                Please contact admin: Abinash Kumar
+            </div>
+            <button onclick="document.getElementById('block-modal').style.display='none'" style="padding:8px 16px;border:none;background:#3498db;color:#fff;border-radius:4px;font-size:1rem;cursor:pointer;">
+                Close
+            </button>
+        </div>
+    </div>
+    <script>
+        function showBlockedModal() {
+            document.getElementById('block-modal').style.display = 'flex';
+        }
+
+        // IDs of sidebar and playlist items to attach the restriction modal
+        const restrictionMenuIds = [
+            'discover-menu',
+            'favorites-menu',
+            'recent-menu',
+            'playlists-menu',
+            'playlist-my-mix',
+            'playlist-chill-vibes',
+            'playlist-workout',
+            'playlist-road-trip'
+        ];
+        restrictionMenuIds.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showBlockedModal();
+                });
+            }
+        });
+
+        // Also attach after DOM loaded to ensure IDs are in DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            restrictionMenuIds.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.style.cursor = 'pointer';
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        showBlockedModal();
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
