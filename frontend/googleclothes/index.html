@@ -1,1 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Google Fashion</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+      /* Check Out Modal Styles */
+      #checkoutModal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0; top: 0; width: 100vw; height: 100vh;
+        background: rgba(60,60,60,0.55);
+        justify-content: center;
+        align-items: center;
+      }
+      #checkoutModal .checkout-content {
+        background: #fff;
+        max-width: 480px;
+        width: 96%;
+        padding: 2rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 12px 40px 0 rgba(0,0,0,0.18);
+        position: relative;
+        min-height: 350px;
+      }
+      #checkoutModal .close-btn {
+        position: absolute; top: 14px; right: 20px; font-size: 22px; cursor: pointer; font-weight: bold; color: #333;
+      }
+      #checkoutModal .checkout-title {
+        font-size: 1.2rem; margin: 0 0 0.5rem 0; font-weight: 700;
+      }
+      #checkoutModal .checkout-price {
+        font-size: 1rem; color: #1e8766; font-weight: 600; margin-bottom: 1rem;
+      }
+      #checkoutModal .checkout-list {
+        margin-bottom: 1.2rem;
+        max-height: 180px;
+        overflow-y: auto;
+      }
+      #checkoutModal .checkout-product-row {
+        display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px; padding-bottom: 6px;
+      }
+      #checkoutModal .checkout-product-row img {
+        width: 50px; height: 50px; object-fit:cover; border-radius: 4px;
+      }
+      #checkoutModal .checkout-product-title {
+        font-size: 0.98rem; flex: 1 1 120px;
+      }
+      #checkoutModal .checkout-product-price {
+        font-size: 0.99rem; color: #1e8766; font-weight: 600; margin-right: 10px;
+      }
+      #checkoutModal .checkout-remove-btn {
+        background: transparent; color: #ad2222; border: none; font-size: 18px; cursor: pointer; padding: 0 4px;
+      }
+      #checkoutModal .checkout-empty {
+        text-align: center; color: #999; margin-bottom: 1rem;
+        font-weight: 500;
+      }
+      #checkoutModal input, #checkoutModal button {
+        width: 100%; margin-bottom: 0.65rem; padding: 0.65rem 0.5rem;
+        border-radius: 4px; border: 1px solid #ccc; font-size: 1rem;
+      }
+      #checkoutModal button[type="submit"] {
+        background: #2f446c; color: #fff; border: none; font-weight: bold; cursor: pointer;
+        transition: background 0.2s;
+      }
+      #checkoutModal button[type="submit"]:hover { background: #182239; }
 
+      #checkoutModal .checkout-success { 
+        text-align:center; 
+        font-weight: bold; 
+        color: #1e8766; 
+        margin-top: 15px; 
+      }
+      /* Bill Modal */
+      #billModal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0; top: 0; width: 100vw; height: 100vh;
+        background: rgba(60,60,60,0.55);
+        justify-content: center;
+        align-items: center;
+      }
+      #billModal .bill-content {
+        background: #fff;
+        max-width: 420px;
+        width: 96%;
+        padding: 2rem 1rem;
+        border-radius: 12px;
+        box-shadow: 0 12px 40px 0 rgba(0,0,0,0.2);
+        position: relative;
+      }
+      #billModal .close-bill-btn {
+        position: absolute; top: 14px; right: 20px; font-size: 22px; cursor: pointer; font-weight: bold; color: #333;
+      }
+      #billModal .bill-heading {
+        font-size: 1rem;
+        font-weight: bold; text-align: center; margin-bottom: 12px;
+        color: #2f446c;
+      }
+      #billModal table { width: 100%; margin: 0 0 1rem 0; border-collapse: collapse; font-size: 0.96rem; }
+      #billModal th, #billModal td { border: 1px solid #eee; padding: 6px 4px; text-align: left; }
+      #billModal .bill-total-row td { font-weight: bold; }
+      #billModal .bill-footer {
+        text-align:center; margin:1rem 0 0 0; font-size:0.97rem; color:#666;
+      }
+      #billModal .bill-user-details { font-size: 0.95rem; margin-bottom: 14px; color:#333; }
+      /* Buttons Row in Success */
+      .checkout-bill-options {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        justify-content: center;
+        margin: 1.3rem 0 0.75rem 0;
+      }
+      .checkout-bill-options button {
+        width: auto !important;
+        padding: 0.55rem 1.2rem !important;
+        margin-bottom: 0 !important;
+        font-size: 1rem;
+        border-radius: 4px;
+        border: 1px solid #2f446c;
+        background: #fff;
+        color: #2f446c;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.18s;
+      }
+      .checkout-bill-options button:hover {
+        background: #2f446c;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <input type="checkbox" name="" id="checkbox">
+            <div class="hamburger-lines">
+                <span class="line line1"></span>
+                <span class="line line2"></span>
+                <span class="line line3"></span>
+            </div>
+            <ul class="menu-items">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#sellers">Shop</a></li>
+                <li><a href="#news">Blog</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#" id="checkout-link"><i class='bx bx-cart'></i> Checkout</a></li>
+            </ul>
+            <div class="logo">
+                <img src="https://logospng.org/download/google/logo-google-4096.png" alt="" style="width: 100px; height: auto;">
+            </div>
+        </div>
+    </nav>
+    <section id="home">
+        <div class="home_page ">
+            <div class="home_img ">
+                <img src="https://i.postimg.cc/t403yfn9/home2.jpg" alt="img ">
+            </div>
+            <div class="home_txt ">
+                <p class="collectio ">SUMMER COLLECTION</p>
+                <h2>FALL - WINTER<br>Collection 2023</h2>
+                <div class="home_label ">
+                    <p>A specialist label creating luxury essentials. Ethically crafted<br>with an unwavering commitment to exceptional quality.</p>
+                </div>
+                <button><a href="#sellers">SHOP NOW</a><i class='bx bx-right-arrow-alt'></i></button>
+                <div class="home_social_icons" id="homeSocialIcons">
+                    <a href="#" class="denied-social-link"><i class='bx bxl-facebook'></i></a>
+                    <a href="#" class="denied-social-link"><i class='bx bxl-twitter'></i></a>
+                    <a href="#" class="denied-social-link"><i class='bx bxl-pinterest'></i></a>
+                    <a href="#" class="denied-social-link"><i class='bx bxl-instagram'></i></a>
+                </div>
+                <div class="denied-msg-pop" id="deniedMsgPop" style="display:none; position:absolute; left:50%; top:108%; transform:translateX(-50%); background:#fff6e9; border:1px solid #ecb2b2; border-radius:8px; color:#cf3333; padding: 17px 26px; margin-top:7px; font-size:1.08em; font-family:inherit; box-shadow:0 5px 16px #0002; z-index:100;">
+                    &#9888; Access denied by Abinash Kumar. Please contact him.
+                </div>
+                <script>
+                // Positioning: assumes parent 'home_txt' is relatively positioned (or adjust style as needed)
+                document.addEventListener('DOMContentLoaded', function() {
+                    var links = document.querySelectorAll('.denied-social-link');
+                    var popup = document.getElementById('deniedMsgPop');
+                    var iconsDiv = document.getElementById('homeSocialIcons');
+                    links.forEach(function(link) {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            popup.style.display = 'block';
+                            popup.classList.add('pop-active');
+                            // Optionally animate:
+                            popup.style.opacity = '1';
+                            popup.style.transform = 'translateX(-50%) scale(1.07)';
+                            setTimeout(function() {
+                                popup.classList.remove('pop-active');
+                                popup.style.opacity = '0';
+                                popup.style.transform = 'translateX(-50%) scale(0.98)';
+                                setTimeout(function() { popup.style.display = 'none'; }, 250);
+                            }, 1850);
+                        });
+                    });
+                });
+                </script>
+                <style>
+                .denied-msg-pop {
+                  transition: opacity 0.2s, transform 0.2s;
+                  opacity: 0;
+                }
+                .denied-msg-pop.pop-active {
+                  opacity: 1 !important;
+                  transform: translateX(-50%) scale(1.07) !important;
+                  animation: deniedBounce 0.6s cubic-bezier(.32,1,.38,1);
+                  display: block !important;
+                }
+                @keyframes deniedBounce {
+                  0% { transform: translateX(-50%) scale(0.8);}
+                  60% {transform: translateX(-50%) scale(1.12);}
+                  100% { transform: translateX(-50%) scale(1.07);}
+                }
+                </style>
+            </div>
+        </div>
+    </section>
+    <section id="collection">
+        <div class="collections container">
+            <div class="content">
+                <img src="https://i.postimg.cc/Xqmwr12c/clothing.webp" alt="img" />
+                <div class="img-content">
+                    <p>Clothing Collections</p>
+                    <button><a href="#sellers">SHOP NOW</a></button>
+                </div>
+            </div>
+            <div class="content2">
+                <img src="https://i.postimg.cc/8CmBZH5N/shoes.webp" alt="img" />
+                <div class="img-content2">
+                    <p>Shoes Spring</p>
+                    <button><a href="#sellers">SHOP NOW</a></button>
+                </div>
+            </div>
+            <div class="content3">
+                <img src="https://i.postimg.cc/MHv7KJYp/access.webp" alt="img" />
+                <div class="img-content3">
+                    <p>Accessories</p>
+                    <button><a href="#sellers">SHOP NOW</a></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="sellers">
+        <div class="seller container">
+            <h2>Top Sales</h2>
+            <div class="best-seller">
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/8CmBZH5N/shoes.webp" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Shoes</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;37.24
+                            <div class="colors">
+                                <i class='bx bxs-circle red'></i>
+                                <i class='bx bxs-circle blue'></i>
+                                <i class='bx bxs-circle white'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn" 
+                              data-title="PS England Shoes" 
+                              data-price="37.24" 
+                              data-img="https://i.postimg.cc/8CmBZH5N/shoes.webp"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/76X9ZV8m/Screenshot_from_2022-06-03_18-45-12.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Jacket</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;17.24
+                            <div class="colors">
+                                <i class='bx bxs-circle green'></i>
+                                <i class='bx bxs-circle grey'></i>
+                                <i class='bx bxs-circle brown'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn" 
+                              data-title="PS England Jacket" 
+                              data-price="17.24"
+                              data-img="https://i.postimg.cc/76X9ZV8m/Screenshot_from_2022-06-03_18-45-12.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/j2FhzSjf/bs2.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Shirt</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bx-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;27.24
+                            <div class="colors">
+                                <i class='bx bxs-circle brown'></i>
+                                <i class='bx bxs-circle green'></i>
+                                <i class='bx bxs-circle blue'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn" 
+                              data-title="PS England Shirt" 
+                              data-price="27.24"
+                              data-img="https://i.postimg.cc/j2FhzSjf/bs2.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/QtjSDzPF/bs3.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Shoes</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;43.67
+                            <div class="colors">
+                                <i class='bx bxs-circle red'></i>
+                                <i class='bx bxs-circle grey'></i>
+                                <i class='bx bxs-circle blue'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn" 
+                              data-title="PS England Shoes" 
+                              data-price="43.67"
+                              data-img="https://i.postimg.cc/QtjSDzPF/bs3.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="seller container">
+            <h2>New Arrivals</h2>
+            <div class="best-seller">
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/fbnB2yfj/na1.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England T-Shirt</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;10.23
+                            <div class="colors">
+                                <i class='bx bxs-circle blank'></i>
+                                <i class='bx bxs-circle blue'></i>
+                                <i class='bx bxs-circle brown'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England T-Shirt"
+                              data-price="10.23"
+                              data-img="https://i.postimg.cc/fbnB2yfj/na1.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/zD02zJq8/na2.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Bag</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;09.28
+                            <div class="colors">
+                                <i class='bx bxs-circle brown'></i>
+                                <i class='bx bxs-circle red'></i>
+                                <i class='bx bxs-circle green'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England Bag"
+                              data-price="9.28"
+                              data-img="https://i.postimg.cc/zD02zJq8/na2.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/Dfj5VBcz/sunglasses1.jpg" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Sunglass</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;06.24
+                            <div class="colors">
+                                <i class='bx bxs-circle grey'></i>
+                                <i class='bx bxs-circle blank'></i>
+                                <i class='bx bxs-circle blank'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England Sunglass"
+                              data-price="6.24"
+                              data-img="https://i.postimg.cc/Dfj5VBcz/sunglasses1.jpg"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/FszW12Kc/na4.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Shoes</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;43.67
+                            <div class="colors">
+                                <i class='bx bxs-circle grey'></i>
+                                <i class='bx bxs-circle red'></i>
+                                <i class='bx bxs-circle blue'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England Shoes"
+                              data-price="43.67"
+                              data-img="https://i.postimg.cc/FszW12Kc/na4.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="seller container">
+            <h2>Hot Sales</h2>
+            <div class="best-seller">
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/jS7pSQLf/na4.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Shoes</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;37.24
+                            <div class="colors">
+                                <i class='bx bxs-circle grey'></i>
+                                <i class='bx bxs-circle black'></i>
+                                <i class='bx bxs-circle blue'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England Shoes"
+                              data-price="37.24"
+                              data-img="https://i.postimg.cc/jS7pSQLf/na4.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/fbnB2yfj/na1.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England T-Shirt</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;10.23
+                            <div class="colors">
+                                <i class='bx bxs-circle blank'></i>
+                                <i class='bx bxs-circle blue'></i>
+                                <i class='bx bxs-circle brown'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England T-Shirt"
+                              data-price="10.23"
+                              data-img="https://i.postimg.cc/fbnB2yfj/na1.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/RhVP7YQk/hs1.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England T-Shirt</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bxs-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;15.24
+                            <div class="colors">
+                                <i class='bx bxs-circle blank'></i>
+                                <i class='bx bxs-circle red'></i>
+                                <i class='bx bxs-circle blue'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England T-Shirt"
+                              data-price="15.24"
+                              data-img="https://i.postimg.cc/RhVP7YQk/hs1.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="best-p1">
+                    <img src="https://i.postimg.cc/zD02zJq8/na2.png" alt="img">
+                    <div class="best-p1-txt">
+                        <div class="name-of-p">
+                            <p>PS England Bag</p>
+                        </div>
+                        <div class="rating">
+                            <i class='bx bxs-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                            <i class='bx bx-star'></i>
+                        </div>
+                        <div class="price">
+                            &dollar;09.28
+                            <div class="colors">
+                                <i class='bx bxs-circle blank'></i>
+                                <i class='bx bxs-circle grey'></i>
+                                <i class='bx bxs-circle brown'></i>
+                            </div>
+                        </div>
+                        <div class="buy-now">
+                            <button class="checkout-btn"
+                              data-title="PS England Bag"
+                              data-price="9.28"
+                              data-img="https://i.postimg.cc/zD02zJq8/na2.png"
+                            >Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Dynamic Check Out Modal -->
+    <div id="checkoutModal">
+      <div class="checkout-content">
+        <span class="close-btn">&times;</span>
+        <div class="checkout-title">Your Cart</div>
+        <div class="checkout-list" id="checkoutList"></div>
+        <div class="checkout-empty" id="checkoutEmpty" style="display:none;">Your cart is empty.</div>
+        <div class="checkout-price" id="checkoutTotalPrice"></div>
+        <form id="checkoutForm" autocomplete="off" style="display:none; margin-top:8px; margin-bottom: 0;">
+          <input type="text" name="fullname" id="checkoutFullName" placeholder="Full Name" required>
+          <input type="email" name="email" id="checkoutEmail" placeholder="Email" required>
+          <input type="text" name="address" id="checkoutAddress" placeholder="Shipping Address" required>
+          <button type="submit">Place Order</button>
+        </form>
+        <div class="checkout-success" style="display:none;">
+          Order placed successfully!
+          <div class="checkout-bill-options" style="display:none;">
+            <button id="viewBillBtn" type="button">View Bill</button>
+            <button id="downloadBillBtn" type="button">Download Receipt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bill Modal -->
+    <div id="billModal">
+      <div class="bill-content">
+        <span class="close-bill-btn">&times;</span>
+        <div class="bill-heading">Order Bill / Receipt</div>
+        <div class="bill-user-details"></div>
+        <div class="bill-items"></div>
+        <div class="bill-footer">
+          Thank you for shopping with us!<br>
+          <span style="font-size:0.96em; color:#666;">developed by abinash kumar</span>
+        </div>
+      </div>
+    </div>
+    <section id="news">
+        <div class="news-heading">
+            <p>LATEST NEWS</p>
+            <h2>Fashion New Trends</h2>
+        </div>
+        <div class="l-news container">
+            <div class="l-news1">
+                <div class="news1-img">
+                    <img src="https://i.postimg.cc/2y6wbZCm/news1.jpg" alt="img">
+                </div>
+                <div class="news1-conte">
+                    <div class="date-news1">
+                        <p><i class='bx bxs-calendar'></i> 12 February 2022</p>
+                        <h4>What Curling Irons Are The Best Ones</h4>
+                        <a href="" class="animated-readmore" id="blockedLink">read more</a>
+                        <style>
+                          .animated-readmore {
+                            position: relative;
+                            display: inline-block;
+                            transition: color 0.25s;
+                            color: #2f446c;
+                            overflow: hidden;
+                          }
+                          .animated-readmore:hover {
+                            color: #de3838;
+                            animation: shakeX 0.35s;
+                          }
+                          @keyframes shakeX {
+                            0%, 100% { transform: translateX(0); }
+                            20% { transform: translateX(-5px);}
+                            40% { transform: translateX(7px);}
+                            60% { transform: translateX(-3px);}
+                            80% { transform: translateX(2px);}
+                          }
+                          .blocked-msg-pop {
+                            position: absolute;
+                            left: 50%;
+                            top: -43px;
+                            transform: translateX(-50%);
+                            background: #fff6e9;
+                            color: #cf3333;
+                            border: 1px solid #ecb2b2;
+                            border-radius: 8px;
+                            padding: 9px 19px;
+                            font-size: 0.99em;
+                            box-shadow: 0 5px 16px #0002;
+                            opacity: 0;
+                            pointer-events: none;
+                            z-index: 99;
+                            transition: opacity 0.18s, transform 0.18s;
+                            font-family: inherit;
+                            min-width: 220px;
+                          }
+                          .blocked-msg-pop.active {
+                            opacity: 1;
+                            transform: translateX(-50%) scale(1.05);
+                          }
+                        </style>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                          var link = document.getElementById('blockedLink');
+                          var existsPop = document.getElementById('blockedMsgPop');
+                          if(!existsPop) {
+                            var pop = document.createElement('div');
+                            pop.className = 'blocked-msg-pop';
+                            pop.id = 'blockedMsgPop';
+                            pop.innerHTML = "&#9888; Admin does not allow access.<br>Please contact Abinash Kumar.";
+                            link.parentNode.insertBefore(pop, link.nextSibling);
+                          }
+                          var popup = document.getElementById('blockedMsgPop');
+                          link.addEventListener('click', function(e){
+                            e.preventDefault();
+                            // Show animated pop
+                            popup.classList.add('active');
+                            setTimeout(function(){
+                              popup.classList.remove('active');
+                            }, 2150);
+                          });
+                          link.addEventListener('mouseleave', function(){
+                            popup.classList.remove('active');
+                          });
+                        });
+                        </script> 
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="l-news2">
+                <div class="news2-img">
+                    <img src="https://i.postimg.cc/9MXPK7RT/news2.jpg" alt="img">
+                </div>
+                <div class="news2-conte">
+                    <div class="date-news2">
+                        <p><i class='bx bxs-calendar'></i> 17 February 2022</p>
+                        <h4>The Health Benefits Of Sunglasses</h4>
+                        <a href="" class="animated-readmore" id="blockedLink">read more</a>
+                        <style>
+                          .animated-readmore {
+                            position: relative;
+                            display: inline-block;
+                            transition: color 0.25s;
+                            color: #2f446c;
+                            overflow: hidden;
+                          }
+                          .animated-readmore:hover {
+                            color: #de3838;
+                            animation: shakeX 0.35s;
+                          }
+                          @keyframes shakeX {
+                            0%, 100% { transform: translateX(0); }
+                            20% { transform: translateX(-5px);}
+                            40% { transform: translateX(7px);}
+                            60% { transform: translateX(-3px);}
+                            80% { transform: translateX(2px);}
+                          }
+                          .blocked-msg-pop {
+                            position: absolute;
+                            left: 50%;
+                            top: -43px;
+                            transform: translateX(-50%);
+                            background: #fff6e9;
+                            color: #cf3333;
+                            border: 1px solid #ecb2b2;
+                            border-radius: 8px;
+                            padding: 9px 19px;
+                            font-size: 0.99em;
+                            box-shadow: 0 5px 16px #0002;
+                            opacity: 0;
+                            pointer-events: none;
+                            z-index: 99;
+                            transition: opacity 0.18s, transform 0.18s;
+                            font-family: inherit;
+                            min-width: 220px;
+                          }
+                          .blocked-msg-pop.active {
+                            opacity: 1;
+                            transform: translateX(-50%) scale(1.05);
+                          }
+                        </style>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                          var link = document.getElementById('blockedLink');
+                          var existsPop = document.getElementById('blockedMsgPop');
+                          if(!existsPop) {
+                            var pop = document.createElement('div');
+                            pop.className = 'blocked-msg-pop';
+                            pop.id = 'blockedMsgPop';
+                            pop.innerHTML = "&#9888; Admin does not allow access.<br>Please contact Abinash Kumar.";
+                            link.parentNode.insertBefore(pop, link.nextSibling);
+                          }
+                          var popup = document.getElementById('blockedMsgPop');
+                          link.addEventListener('click', function(e){
+                            e.preventDefault();
+                            // Show animated pop
+                            popup.classList.add('active');
+                            setTimeout(function(){
+                              popup.classList.remove('active');
+                            }, 2150);
+                          });
+                          link.addEventListener('mouseleave', function(){
+                            popup.classList.remove('active');
+                          });
+                        });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="l-news3">
+                <div class="news3-img">
+                    <img src="https://i.postimg.cc/x1KKdRLM/news3.jpg" alt="img">
+                </div>
+                <div class="news3-conte">
+                    <div class="date-news3">
+                        <p><i class='bx bxs-calendar'></i> 26 February 202</p>
+                        <h4>Eternity Bands Do Last Forever</h4>
+                        <a href="" class="animated-readmore" id="blockedLink">read more</a>
+                        <style>
+                          .animated-readmore {
+                            position: relative;
+                            display: inline-block;
+                            transition: color 0.25s;
+                            color: #2f446c;
+                            overflow: hidden;
+                          }
+                          .animated-readmore:hover {
+                            color: #de3838;
+                            animation: shakeX 0.35s;
+                          }
+                          @keyframes shakeX {
+                            0%, 100% { transform: translateX(0); }
+                            20% { transform: translateX(-5px);}
+                            40% { transform: translateX(7px);}
+                            60% { transform: translateX(-3px);}
+                            80% { transform: translateX(2px);}
+                          }
+                          .blocked-msg-pop {
+                            position: absolute;
+                            left: 50%;
+                            top: -43px;
+                            transform: translateX(-50%);
+                            background: #fff6e9;
+                            color: #cf3333;
+                            border: 1px solid #ecb2b2;
+                            border-radius: 8px;
+                            padding: 9px 19px;
+                            font-size: 0.99em;
+                            box-shadow: 0 5px 16px #0002;
+                            opacity: 0;
+                            pointer-events: none;
+                            z-index: 99;
+                            transition: opacity 0.18s, transform 0.18s;
+                            font-family: inherit;
+                            min-width: 220px;
+                          }
+                          .blocked-msg-pop.active {
+                            opacity: 1;
+                            transform: translateX(-50%) scale(1.05);
+                          }
+                        </style>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                          var link = document.getElementById('blockedLink');
+                          var existsPop = document.getElementById('blockedMsgPop');
+                          if(!existsPop) {
+                            var pop = document.createElement('div');
+                            pop.className = 'blocked-msg-pop';
+                            pop.id = 'blockedMsgPop';
+                            pop.innerHTML = "&#9888; Admin does not allow access.<br>Please contact Abinash Kumar.";
+                            link.parentNode.insertBefore(pop, link.nextSibling);
+                          }
+                          var popup = document.getElementById('blockedMsgPop');
+                          link.addEventListener('click', function(e){
+                            e.preventDefault();
+                            // Show animated pop
+                            popup.classList.add('active');
+                            setTimeout(function(){
+                              popup.classList.remove('active');
+                            }, 2150);
+                          });
+                          link.addEventListener('mouseleave', function(){
+                            popup.classList.remove('active');
+                          });
+                        });
+                        </script>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact">
+        <div class="contact container">
+        <div class="map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.491409282234!2d78.46005731416943!3d17.385044088078812!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb97309584c303%3A0x3f570ab7f4762f3f!2sHyderabad%2C%20Telangana%2C%20India!5e0!3m2!1sen!2sin!4v1717144741599!5m2!1sen!2sin"
+                width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <form id="contactForm" action="https://formspree.io/f/xzbowpjq" method="POST" autocomplete="off">
+            <div class="form">
+                <div class="form-txt">
+                    <h4>INFORMATION</h4>
+                    <h1>Contact Us</h1>
+                    <span>As you might expect of a company that began as a high-end interiors contractor, we pay strict
+                        attention.</span>
+                    <h3>USA</h3>
+                    <p>195 E Parker Square Dr, Parker, CO 801<br>+43 982-314-0958</p>
+                    <h3>India</h3>
+                    <p>HW95+C9C, Lorem ipsum dolor sit.<br>411014</p>
+                </div>
+                <div class="form-details">
+                    <input type="text" name="name" id="name" placeholder="Name" required>
+                    <input type="email" name="email" id="email" placeholder="Email" required>
+                    <textarea name="message" id="message" cols="52" rows="7" placeholder="Message" required></textarea>
+                    <button id="sendMsgBtn" type="submit">SEND MESSAGE</button>
+                </div>
+            </div>
+            <div id="msgPopSuccess" class="msg-pop-success" style="display:none;">
+                <span>&#x2709; Message sent successfully!</span>
+                <span id="yourMsgId" style="display:none; margin-left:12px; color:#11691b; font-weight:600; font-size:0.95em;"></span>
+            </div>
+        </form>
+        <style>
+            .msg-pop-success {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                left: 50%;
+                top: 25px;
+                transform: translateX(-50%) scale(0.95);
+                background: linear-gradient(120deg, #e3ffe3, #d2ffeb 95%);
+                color: #128c36;
+                border: 1.5px solid #98e09b;
+                border-radius: 12px;
+                padding: 14px 34px;
+                font-size: 1.08em;
+                box-shadow: 0 8px 24px #9dfaac22, 0 2px 8px #25db8444;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 300;
+                min-width: 250px;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                gap: 12px;
+                transition: 
+                    opacity 0.21s cubic-bezier(.32,2,.55,1),
+                    transform 0.21s cubic-bezier(.32,2,.55,1);
+            }
+            .msg-pop-success.active {
+                display: flex !important;
+                opacity: 1;
+                transform: translateX(-50%) scale(1.06);
+                animation: bounceMsgPop 0.66s cubic-bezier(.38,1.6,.55,0.85);
+                pointer-events: auto;
+            }
+            @keyframes bounceMsgPop {
+                0% { transform: translateX(-50%) scale(0.9);}
+                55% {transform: translateX(-50%) scale(1.11);}
+                100% { transform: translateX(-50%) scale(1.06);}
+            }
+        </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var form = document.getElementById('contactForm');
+                var pop = document.getElementById('msgPopSuccess');
+                var yourMsgId = document.getElementById('yourMsgId');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var formData = new FormData(form);
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", form.action, true);
+                    xhr.setRequestHeader("Accept", "application/json");
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                // Try to parse formspree unique id from the response, fallback = N/A
+                                var msgId = '';
+                                try {
+                                    var resp = JSON.parse(xhr.responseText);
+                                    if (resp.id) {
+                                        msgId = resp.id;
+                                    } else if (resp.message_id) {
+                                        msgId = resp.message_id;
+                                    } else {
+                                        msgId = Math.floor(Math.random()*90000+10000); // fallback random num
+                                    }
+                                } catch(_) {
+                                    msgId = Math.floor(Math.random()*90000+10000);
+                                }
+                                // Show success popup with id
+                                pop.style.display = "flex";
+                                pop.classList.add('active');
+                                yourMsgId.style.display = "inline";
+                                yourMsgId.textContent = "Your Message ID: " + msgId;
+                                form.reset();
+                                setTimeout(function() {
+                                    pop.classList.remove('active');
+                                    yourMsgId.style.display = "none";
+                                    pop.style.display = "none";
+                                }, 4000);
+                            } else {
+                                // fallback: show error
+                                pop.style.display = "flex";
+                                pop.innerHTML = "<span style='color:#b80101;'>&#9888; There was an error. Try again.</span>";
+                                pop.classList.add('active');
+                                setTimeout(function() {
+                                    pop.classList.remove('active');
+                                    pop.innerHTML = "<span>&#x2709; Message sent successfully!</span><span id='yourMsgId' style='display:none; margin-left:12px; color:#11691b; font-weight:600; font-size:0.95em;'></span>";
+                                    pop.style.display = "none";
+                                }, 2400);
+                            }
+                        }
+                    };
+                    xhr.send(formData);
+                });
+            });
+        </script>
+    </div>
+    </section>
+    <footer>
+        <div class="footer-container container">
+            <div class="content_1">
+                <img src="https://logospng.org/download/google/logo-google-4096.png" alt="" style="width: 100px; height: auto;">
+                <p>The customer is at the heart of our<br>unique business model, which includes<br>design.</p>
+                <img src="https://i.postimg.cc/Nj9dgJ98/cards.png" alt="cards">
+            </div>
+            <div class="content_2">
+                <h4>SHOPPING</h4>
+                <a href="#sellers">Clothing Store</a>
+                <a href="#sellers">Trending Shoes</a>
+                <a href="#sellers">Accessories</a>
+                <a href="#sellers">Sale</a>
+            </div>
+            <div class="content_3">
+                <h4>SHOPPING</h4>
+                <a href="#" class="blocked-link-footer">Contact Us</a>
+                <a href="#" class="blocked-link-footer">Payment Method</a>
+                <a href="#" class="blocked-link-footer">Delivery</a>
+                <a href="#" class="blocked-link-footer">Return and Exchange</a>
+            </div>
+            <style>
+                .blocked-footer-pop {
+                    position: absolute;
+                    left: 50%;
+                    top: -55px;
+                    transform: translateX(-50%) scale(0.93);
+                    background: linear-gradient(120deg, #ffe7e7, #ffe0c2 95%);
+                    color: #d63434;
+                    border: 1.5px solid #eaaa84;
+                    border-radius: 12px;
+                    padding: 12px 27px;
+                    font-size: 1.01em;
+                    box-shadow: 0 7px 22px #0002, 0 2px 8px #fcba8b44;
+                    opacity: 0;
+                    pointer-events: none;
+                    z-index: 200;
+                    min-width: 240px;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    transition: opacity 0.22s cubic-bezier(.32,2,.55,1),transform 0.2s cubic-bezier(.32,2,.55,1);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .blocked-footer-pop.active {
+                    opacity: 1;
+                    transform: translateX(-50%) scale(1.07);
+                    animation: bouncePop 0.58s cubic-bezier(.38,1.6,.55,0.85);
+                    pointer-events: auto;
+                }
+                .blocked-link-footer {
+                    position: relative;
+                    color: #244a44 !important;
+                    text-decoration: none;
+                    padding: 0 2px;
+                    font-weight: 500;
+                    transition: color 0.22s cubic-bezier(.8,.3,.3,.9);
+                    z-index: 1;
+                }
+                .blocked-link-footer:hover, .blocked-link-footer:focus {
+                    color: #f23a3a !important;
+                    animation: shakeActive 0.24s linear;
+                }
+                @keyframes shakeActive {
+                    0% { transform: translateX(0);}
+                    20% { transform: translateX(-3px);}
+                    38% { transform: translateX(5px);}
+                    56% { transform: translateX(-2px);}
+                    70% { transform: translateX(1.5px);}
+                    85% { transform: translateX(-1px);}
+                    100% { transform: translateX(0);}
+                }
+                @keyframes bouncePop {
+                    0%   { transform: translateX(-50%) scale(0.9);}
+                    70%  { transform: translateX(-50%) scale(1.1);}
+                    100% { transform: translateX(-50%) scale(1.07);}
+                }
+                .blocked-footer-pop .emoji-block {
+                    font-size: 1.5em; margin-right: 5px;
+                    animation: popEmoji 0.77s cubic-bezier(.62,1.6,.55,0.5);
+                    user-select: none;
+                }
+                @keyframes popEmoji {
+                  0%   { transform: scale(0.5) rotate(-18deg);}
+                  65%  { transform: scale(1.22) rotate(10deg);}
+                  100% { transform: scale(1) rotate(0);}
+                }
+            </style>
+            <script>
+            // Utility function for fetching IP (IPv4)
+            async function fetchUserIP() {
+                try {
+                    // Primary: ipinfo.io Free API, fallback to Cloudflare
+                    const r1 = await fetch("https://ipinfo.io/json?token=YOUR_TOKEN_HERE");
+                    if (r1.ok) {
+                        const data = await r1.json();
+                        if (data.ip) return data.ip;
+                    }
+                } catch(e){}
+                // Fallback using Cloudflare trace
+                try {
+                    const r2 = await fetch("https://www.cloudflare.com/cdn-cgi/trace");
+                    const text = await r2.text();
+                    const match = text.match(/ip=([\d\.]+)/);
+                    if (match) return match[1];
+                } catch(e){}
+                return "#unknown";
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const links = document.querySelectorAll('.blocked-link-footer');
+                let cachedIp = null;
+
+                // Ensure each link has its own animated pop (for separate stacking/position!)
+                links.forEach(link => {
+                    // Avoid duplication
+                    let pop = link.parentNode.querySelector('.blocked-footer-pop');
+                    if (!pop) {
+                        pop = document.createElement('div');
+                        pop.className = 'blocked-footer-pop';
+                        pop.innerHTML = `<span class="emoji-block">&#9888;</span>
+                            <span class="pop-msg-style"></span>`;
+                        link.parentNode.insertBefore(pop, link.nextSibling);
+                    }
+                    // Absolutely position relative to parent, so ensure parent is not statically positioned
+                    let p = link.parentNode;
+                    if (getComputedStyle(p).position === 'static') p.style.position = 'relative';
+
+                    function showPop(msg) {
+                        pop.querySelector('.pop-msg-style').innerHTML = msg;
+                        pop.classList.add('active');
+                        setTimeout(() => pop.classList.remove('active'), 2650);
+                    }
+                    link.addEventListener('click', function(e){
+                        e.preventDefault();
+                        // Dynamic gradient/animation
+                        pop.style.background = `linear-gradient(120deg, #fff7f4 60%, #ffe0c2 99%)`;
+                        if(cachedIp !== null) {
+                            showPop(`Admin denied on <span style="font-weight:bold;">your ip ${cachedIp}</span>`);
+                        } else {
+                            pop.querySelector('.pop-msg-style').innerHTML = 'Fetching your IP...'; // loader message
+                            showPop('Fetching your IP...');
+                            fetchUserIP().then(ip=>{
+                                cachedIp = ip || "#unknown";
+                                showPop(`Admin denied on <span style="font-weight:bold;">your ip ${cachedIp}</span>`);
+                            }).catch(()=>{
+                                showPop('Admin denied on <span style="font-weight:bold;">your ip #unknown</span>');
+                            });
+                        }
+                        return false;
+                    });
+                    // Hide pop on mouse leave (optional)
+                    link.addEventListener('mouseleave', ()=>{pop.classList.remove('active');});
+                });
+            });
+            </script>
+            <div class="content_4">
+                <h4>NEWLETTER</h4>
+                <p>Be the first to know about new<br>arrivals, look books, sales & promos!</p>
+                <div class="f-mail">
+                    <input type="email" placeholder="Your Email">
+                    <i class='bx bx-envelope'></i>
+                </div>
+                <hr>
+            </div>
+        </div>
+        <div class="f-design">
+            <div class="f-design-txt container">
+                <p>Design and Code by code.sanket</p>
+            </div>
+        </div>
+    </footer>
+    <script src="./script.js"></script>
+    <script>
+      // Dynamic Cart Logic for Checkout
+
+      // Helper: Load cart from localStorage (returns [])
+      function getCart() {
+        const cart = localStorage.getItem('cart');
+        try {
+          return cart ? JSON.parse(cart) : [];
+        } catch(e) {
+          return [];
+        }
+      }
+
+      // Helper: Save cart to localStorage
+      function saveCart(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+
+      // Helper: Find product index in cart by title+img, e.g., for removal
+      function cartIndex(cart, product) {
+        return cart.findIndex(
+          p => p.title === product.title && p.img === product.img && p.price === product.price
+        );
+      }
+
+      // Add product to cart
+      function addToCart(product) {
+        let cart = getCart();
+        // Group same products (idempotent): allow duplicates for "quantity"
+        const idx = cart.findIndex(
+          p => p.title === product.title && p.img === product.img && p.price === product.price
+        );
+        if(idx !== -1) {
+          cart[idx].qty += 1;
+        } else {
+          product.qty = 1;
+          cart.push(product);
+        }
+        saveCart(cart);
+      }
+
+      // Remove product from cart by index
+      function removeFromCart(idx) {
+        let cart = getCart();
+        if (cart[idx].qty > 1) {
+          cart[idx].qty -= 1;
+        } else {
+          cart.splice(idx, 1);
+        }
+        saveCart(cart);
+      }
+
+      // Empty cart
+      function clearCart() {
+        localStorage.removeItem('cart');
+      }
+
+      // Render the checkout modal list
+      function renderCheckoutModal() {
+        const cart = getCart();
+        const $list = $('#checkoutList');
+        const $empty = $('#checkoutEmpty');
+        const $form = $('#checkoutForm');
+        const $total = $('#checkoutTotalPrice');
+        $list.empty();
+
+        if (!cart.length) {
+          $empty.show();
+          $form.hide();
+          $total.hide();
+          $list.hide();
+          return;
+        }
+        $empty.hide();
+        $list.show();
+
+        // Render products
+        let total = 0;
+        cart.forEach((p, i) => {
+          total += parseFloat(p.price) * p.qty;
+          $list.append(
+            `<div class="checkout-product-row">
+               <img src="${p.img}" alt="">
+               <div class="checkout-product-title">${p.title}</div>
+               <div class="checkout-product-price">&dollar;${(p.price*1).toFixed(2)} x ${p.qty}</div>
+               <button class="checkout-remove-btn" data-index="${i}" title="Remove 1">&#10005;</button>
+             </div>`
+          );
+        });
+        $total.text('Total: $' + total.toFixed(2));
+        $total.show();
+        $form.show();
+      }
+
+      // --- Bill/Receipt View/Download logic helpers ---
+
+      // Store the last order, so we can view/download without cart mutation
+      let lastOrder = null;
+
+      function buildBillHTML(order) {
+        // order: { cart, fullname, email, address, orderTime }
+        let html = '';
+        html += `<div class="bill-user-details">
+          <div><b>Name:</b> ${order.fullname}</div>
+          <div><b>Email:</b> ${order.email}</div>
+          <div><b>Shipping Address:</b> ${order.address}</div>
+          <div><b>Order Date:</b> ${order.orderTime}</div>
+        </div>`;
+        html += `<table><thead>
+          <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+        </thead><tbody>`;
+        let total = 0;
+        order.cart.forEach(p => {
+          const subtotal = (parseFloat(p.price) * p.qty);
+          total += subtotal;
+          html += `<tr>
+            <td>${p.title}</td>
+            <td>${p.qty}</td>
+            <td>$${parseFloat(p.price).toFixed(2)}</td>
+            <td>$${subtotal.toFixed(2)}</td>
+          </tr>`;
+        });
+        html += `</tbody>
+          <tfoot>
+            <tr class="bill-total-row">
+              <td colspan="3" style="text-align:right;">Total:</td>
+              <td>$${total.toFixed(2)}</td>
+            </tr>
+          </tfoot>
+        </table>`;
+        return html;
+      }
+
+      function showBillModal(order) {
+        $('#billModal .bill-user-details').html(
+          `<div><b>Name:</b> ${order.fullname}</div>
+          <div><b>Email:</b> ${order.email}</div>
+          <div><b>Shipping Address:</b> ${order.address}</div>
+          <div><b>Order Date:</b> ${order.orderTime}</div>`
+        );
+        $('#billModal .bill-items').html(buildBillHTML(order).replace(/<div class="bill-user-details">[\s\S]*?<\/div>/, '')); // Only table part
+        $('#billModal').css('display', 'flex');
+      }
+
+      function downloadBill(order) {
+        // Generate HTML file
+        let html = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"><title>Receipt</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f6f8fa; color:#222; }
+      .receipt-container { max-width:410px; margin: 24px auto; background:#fff; border-radius:12px; box-shadow:0 2px 16px #0001; padding: 26px 21px; }
+      .receipt-header { font-size: 21px; font-weight:bold; color:#2f446c; text-align:center; }
+      .receipt-user { font-size: 15px; margin: 22px 0 12px 0; }
+      .receipt-table { width: 100%; border-collapse: collapse; font-size:1rem; margin-bottom:10px;}
+      .receipt-table th, .receipt-table td { border: 1px solid #eee; padding: 7px 3px; text-align: left; }
+      .receipt-total-row td { font-weight: bold; }
+      .footer { color:#555; text-align:center; font-size: 15px; margin-top:18px;}
+    </style>
+  </head>
+  <body>
+    <div class="receipt-container">
+      <div class="receipt-header">Order Receipt</div>
+      <div class="receipt-user">
+        <div><b>Name:</b> ${order.fullname}</div>
+        <div><b>Email:</b> ${order.email}</div>
+        <div><b>Shipping Address:</b> ${order.address}</div>
+        <div><b>Order Date:</b> ${order.orderTime}</div>
+      </div>
+      <table class="receipt-table">
+        <thead>
+          <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+        ${
+          order.cart.map(p => {
+            const subtotal = (parseFloat(p.price) * p.qty);
+            return `<tr>
+              <td>${p.title}</td>
+              <td>${p.qty}</td>
+              <td>$${parseFloat(p.price).toFixed(2)}</td>
+              <td>$${subtotal.toFixed(2)}</td>
+            </tr>`;
+          }).join('')
+        }
+        </tbody>
+        <tfoot>
+          <tr class="receipt-total-row">
+            <td colspan="3" style="text-align:right;">Total:</td>
+            <td>
+              $${order.cart.reduce((sum,p)=>sum+(parseFloat(p.price)*p.qty),0).toFixed(2)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="footer">
+        Thank you for shopping with us!<br>
+        <span style="font-size:0.96em; color:#666;">developed by abinash kumar</span>
+      </div>
+    </div>
+  </body>
+</html>
+        `.trim();
+
+        // Download as .html file (alternative: as .pdf using JS-pdf etc)
+        const blob = new Blob([html], {type: "text/html"});
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "receipt.html";
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+        link.remove();
+      }
+
+      // When DOM is ready...
+      $(document).ready(function(){
+
+        // Change all ".checkout-btn" to "Add to Cart" dynamically (already set above),
+        // So: Add to cart on click
+        $('.checkout-btn').on('click', function(e){
+          e.preventDefault();
+          let prod = {
+            title: $(this).data('title') || '',
+            price: $(this).data('price') || '',
+            img: $(this).data('img') || ''
+          };
+          addToCart(prod);
+          // Optionally show cart modal here:
+          renderCheckoutModal();
+          $('#checkoutModal').css('display', 'flex');
+        });
+
+        // Checkout/cart icon in navbar: open modal
+        $('#checkout-link').on('click', function(e){
+          e.preventDefault();
+          renderCheckoutModal();
+          $('#checkoutModal').css('display', 'flex');
+        });
+
+        // Remove button logic (delegated because elements are dynamic)
+        $('#checkoutList').on('click', '.checkout-remove-btn', function(){
+          const idx = $(this).data('index');
+          removeFromCart(idx);
+          renderCheckoutModal();
+        });
+
+        // Close modal by close button
+        $('#checkoutModal .close-btn').on('click', function(){
+          $('#checkoutModal').hide();
+        });
+
+        // Close modal if outside of modal
+        $('#checkoutModal').on('click', function(e){
+          if (e.target === this)
+            $('#checkoutModal').hide();
+        });
+
+        // Place order (fake logic with bill/receipt options)
+        $('#checkoutForm').on('submit', function(e){
+          e.preventDefault();
+          // Build order
+          const order = {
+            cart: getCart(),
+            fullname: $('#checkoutFullName').val(),
+            email: $('#checkoutEmail').val(),
+            address: $('#checkoutAddress').val(),
+            orderTime: (new Date()).toLocaleString()
+          };
+          lastOrder = order; // Save for later view/download
+
+          $(this).hide();
+          $('.checkout-success').show();
+          $('.checkout-bill-options').show(); // Show the bill/view options
+          clearCart();
+
+          // Don't auto-close, only allow closing with X after action
+        });
+
+        // When clicking "View Bill"
+        $(document).on('click', '#viewBillBtn', function(){
+          if (lastOrder) showBillModal(lastOrder);
+        });
+
+        // When clicking "Download Receipt"
+        $(document).on('click', '#downloadBillBtn', function(){
+          if (lastOrder) downloadBill(lastOrder);
+        });
+
+        // Close bill modal logic
+        $('#billModal .close-bill-btn').on('click', function() {
+          $('#billModal').hide();
+        });
+        $('#billModal').on('click', function(e){
+          if (e.target === this)
+            $('#billModal').hide();
+        });
+
+        // Close checkout modal should also clear bill buttons on future open
+        $('#checkoutModal .close-btn').on('click', function(){
+          $('.checkout-bill-options').hide();
+          $('.checkout-success').hide();
+          $('#checkoutForm')[0].reset();
+          $('#checkoutForm').show();
+          $('#checkoutModal').hide();
+        });
+        $('#checkoutModal').on('click', function(e){
+          if (e.target === this) {
+            $('.checkout-bill-options').hide();
+            $('.checkout-success').hide();
+            $('#checkoutForm')[0].reset();
+            $('#checkoutForm').show();
+            $('#checkoutModal').hide();
+          }
+        });
+
+        // On load, hide checkout form if cart empty
+        renderCheckoutModal();
+      });
+    </script>
+  </body>
+</html>
