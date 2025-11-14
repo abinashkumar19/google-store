@@ -9,8 +9,8 @@ env:
   AWS_REGION: ap-northeast-1
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
 
-  # ✅ Updated: added googlepay
-  FRONTEND_SERVICES: "main electronics phones computers earphones googlemusic googlepay"
+  # ✅ googleclothes added here
+  FRONTEND_SERVICES: "main electronics phones computers earphones googlemusic googlepay googleclothes"
 
   BACKEND_SERVICE: "backend"
 
@@ -70,10 +70,10 @@ jobs:
 
           echo "🚀 Building backend..."
           aws ecr describe-repositories --repository-names $REPO_NAME >/dev/null 2>&1 || \
-            aws ecr create-repository --repository-name $REPO_NAME
+            aws ecr.create-repository --repository-name $REPO_NAME
 
-          docker build -t $IMAGE_URI $FOLDER
-          docker push $IMAGE_URI
+          docker.build -t $IMAGE_URI $FOLDER
+          docker.push $IMAGE_URI
 
           sed -i "s|image:.*|image: $IMAGE_URI|g" "$FOLDER/backend-deployment.yml"
 
